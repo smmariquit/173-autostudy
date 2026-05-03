@@ -19,8 +19,10 @@ export async function POST(req: Request) {
 
     const emailContent = `
       <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #eee; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-        <img src="https://stimmie.dev/emailicon.jpg" alt="KIMIroutes LB Logo" style="width: 80px; height: 80px; border-radius: 16px; margin-bottom: 20px;" />
-        <h2 style="color: #014421; margin-top: 0;">KIMIroutes LB: Study Instructions</h2>
+        <div style="text-align: center; margin-bottom: 20px;">
+          <img src="https://stimmie.dev/emailicon.jpg" alt="KIMIroutes LB" style="width: 64px; height: 64px; border-radius: 50%; border: 2px solid #014421; padding: 2px;" />
+        </div>
+        <h2 style="color: #014421; margin-top: 0; text-align: center;">KIMIroutes LB: Study Instructions</h2>
         <p>Hello <strong>${name}</strong>,</p>
         <p>Thank you for participating in our research on campus active transport! To ensure the validity of our study, please complete the tasks in the specific order listed below.</p>
         
