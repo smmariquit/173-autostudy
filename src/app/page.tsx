@@ -1,66 +1,46 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import StudyForm from '@/components/StudyForm';
 
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="container">
+      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+        <h2 style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>
+          KIMIroutes LB
+        </h2>
+        <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>Campus Active Transport Analysis</h1>
+        <div style={{ color: 'var(--text-dim)', maxWidth: '500px', margin: '0 auto' }}>
+          <p style={{ marginBottom: '1rem' }}>
+            Hello! We are a team of student researchers taking CMSC 173 - Human-Computer Interaction at UPLB. We aim to evaluate the effectiveness of an app prototype that assists in campus active transport. Please answer the following questions for us to determine if you are qualified to participate in our study.
           </p>
+          <p style={{ marginBottom: '1rem' }}>
+            Should you have any questions, feel free to contact any of us.
+          </p>
+          <ul style={{ 
+            textAlign: 'left', 
+            display: 'inline-block', 
+            listStyleType: 'disc', 
+            paddingLeft: '1.5rem',
+            marginTop: '1rem',
+            color: 'var(--text-dim)',
+            fontSize: '0.9rem'
+          }}>
+            <li>
+              Simonee Ezekiel M. Mariquit - smmariquit@up.edu.ph
+            </li>
+            <li>
+              Hugz Christian Bernados
+            </li>
+            <li>
+              TBA
+            </li>
+            <li>
+              TBA
+            </li>
+          </ul>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </div>
+
+      <StudyForm />
+    </main>
   );
 }
