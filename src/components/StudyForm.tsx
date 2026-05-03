@@ -9,6 +9,7 @@ export default function StudyForm() {
   const [formData, setFormData] = useState({
     isUPLB: null as boolean | null,
     isActiveTransport: null as boolean | null,
+    isHCIStudent: null as boolean | null,
     name: '',
     email: '',
     fbContact: '',
@@ -16,12 +17,12 @@ export default function StudyForm() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleScreening = (key: 'isUPLB' | 'isActiveTransport', value: boolean) => {
+  const handleScreening = (key: 'isUPLB' | 'isActiveTransport' | 'isHCIStudent', value: boolean) => {
     setFormData({ ...formData, [key]: value });
   };
 
   const handleNextFromScreening = () => {
-    if (formData.isUPLB === false || formData.isActiveTransport === false) {
+    if (formData.isUPLB === false || formData.isActiveTransport === false || formData.isHCIStudent === true) {
       setStep(0); // Show failure
     } else {
       setStep(2);
@@ -67,8 +68,8 @@ export default function StudyForm() {
       <div className="card text-center animate-in">
         <h2 style={{ marginBottom: '1rem' }}>Thank you for your interest!</h2>
         <p style={{ color: 'var(--text-dim)' }}>
-          This study is specifically looking for participants from UPLB who use active transport. 
-          Unfortunately, you do not meet the current selection criteria.
+          Unfortunately, you do not meet the specific selection criteria for this academic study. 
+          We are looking for participants who are UPLB students/staff, users of active transport, and not currently enrolled in CMSC 173.
         </p>
         <button className="btn btn-outline" style={{ marginTop: '2rem' }} onClick={() => window.location.reload()}>
           Go Back
@@ -110,7 +111,7 @@ export default function StudyForm() {
             </div>
           </div>
 
-          <div style={{ marginBottom: '2.5rem' }}>
+          <div style={{ marginBottom: '2rem' }}>
             <label style={{ display: 'block', marginBottom: '1rem', fontWeight: 600 }}>2. Do you use active transport as a primary means of transportation in campus?</label>
             <div className="definition">
               <strong>Definition:</strong> Active transport refers to physical activity as a means of transport, such as walking, cycling, or using non-motorized scooters.
@@ -133,7 +134,27 @@ export default function StudyForm() {
             </div>
           </div>
 
-          {formData.isUPLB !== null && formData.isActiveTransport !== null && (
+          <div style={{ marginBottom: '2.5rem' }}>
+            <label style={{ display: 'block', marginBottom: '1rem', fontWeight: 600 }}>3. Are you currently enrolled in UPLB CMSC 173 - Human-Computer Interaction?</label>
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <div 
+                className={`selection-card ${formData.isHCIStudent === true ? 'selected' : ''}`}
+                style={{ flex: 1 }}
+                onClick={() => handleScreening('isHCIStudent', true)}
+              >
+                Yes
+              </div>
+              <div 
+                className={`selection-card ${formData.isHCIStudent === false ? 'selected' : ''}`}
+                style={{ flex: 1 }}
+                onClick={() => handleScreening('isHCIStudent', false)}
+              >
+                No
+              </div>
+            </div>
+          </div>
+
+          {formData.isUPLB !== null && formData.isActiveTransport !== null && formData.isHCIStudent !== null && (
             <button className="btn btn-primary" style={{ width: '100%' }} onClick={handleNextFromScreening}>
               Continue to Registration <ChevronRight size={18} />
             </button>

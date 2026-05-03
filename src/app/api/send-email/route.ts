@@ -5,7 +5,7 @@ const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key');
 
 export async function POST(req: Request) {
   try {
-    const { name, email, fbContact, consentTimestamp } = await req.json();
+    const { name, email, fbContact, consentTimestamp, isHCIStudent } = await req.json();
 
     // Deterministic Assignment (Statistically Balanced 50/50 Split)
     // We sum the character codes of the email to decide the order without a database.
@@ -58,6 +58,7 @@ export async function POST(req: Request) {
           Name: ${name}<br/>
           Email: ${email}<br/>
           FB/Contact: ${fbContact}<br/>
+          HCI Student (CMSC 173): ${isHCIStudent ? 'Yes' : 'No'}<br/>
           Timestamp: ${new Date(consentTimestamp).toLocaleString('en-PH', { timeZone: 'Asia/Manila' })} (PHT)<br/>
           Status: Electronically Consented via Checkbox
         </div>
