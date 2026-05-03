@@ -24,15 +24,21 @@ export async function POST(req: Request) {
         </div>
         <h2 style="color: #014421; margin-top: 0; text-align: center;">KIMIroutes LB: Study Instructions</h2>
         <p>Hello <strong>${name}</strong>,</p>
-        <p>Thank you for participating in our research on campus active transport! To ensure the validity of our study, please complete the tasks in the specific order listed below.</p>
+        <p>Thank you for participating in our research on campus active transport! Please follow the instructions and study order assigned to you below:</p>
         
-        <div style="background: #eef2ff; padding: 15px; border-radius: 8px; border: 1px solid #c7d2fe; color: #3730a3; margin-bottom: 25px; font-size: 0.95rem;">
-          <strong>CRITICAL:</strong> When asked for your name in the Maze tasks, please use the exact same name you used here: <span style="font-weight: bold; text-decoration: underline;">${name}</span>. This is vital for us to match your results correctly.
-        </div>
-        
-        <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #014421;">
-          <h3 style="margin-top: 0; font-size: 1rem; color: #014421; text-transform: uppercase; letter-spacing: 0.05em;">Your Assigned Study Order:</h3>
-          <p style="font-size: 1.25rem; font-weight: bold; color: #333; margin-bottom: 0;">${studyOrder}</p>
+        <div style="background: #fdfdfd; padding: 25px; border-radius: 12px; border: 1px solid #e5e7eb; margin: 25px 0;">
+          <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #f3f4f6;">
+            <p style="margin: 0 0 8px 0; font-size: 0.8rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Participant Name:</p>
+            <p style="margin: 0; font-size: 1.1rem; color: #111827; font-weight: 700;">${name}</p>
+            <p style={{ margin: '8px 0 0 0', fontSize: '0.85rem', color: '#3730a3' }}>
+              <strong>⚠️ Critical:</strong> Use this exact name in all Maze tasks to match your results.
+            </p>
+          </div>
+          
+          <div>
+            <p style="margin: 0 0 8px 0; font-size: 0.8rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Your Assigned Study Order:</p>
+            <p style="margin: 0; font-size: 1.25rem; color: #014421; font-weight: 800;">${studyOrder}</p>
+          </div>
         </div>
 
         <div style="margin-bottom: 30px;">
