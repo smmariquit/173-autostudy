@@ -91,19 +91,19 @@ export default function StudyForm() {
           <h1 style={{ marginBottom: '0.5rem' }}>Participant Screening</h1>
           <p style={{ color: 'var(--text-dim)', marginBottom: '2.5rem' }}>Please answer these questions to verify eligibility.</p>
 
-          <div style={{ marginBottom: '2rem' }}>
-            <label style={{ display: 'block', marginBottom: '1rem', fontWeight: 600 }}>1. Are you a student, faculty, or staff of UPLB?</label>
-            <div style={{ display: 'flex', gap: '1rem' }}>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.75rem', fontWeight: 600 }}>1. Are you a student, faculty, or staff of UPLB?</label>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
               <div 
                 className={`selection-card ${formData.isUPLB === true ? 'selected' : ''}`}
-                style={{ flex: 1 }}
+                style={{ flex: 1, padding: '1rem' }}
                 onClick={() => handleScreening('isUPLB', true)}
               >
-                <MapPin size={20} /> Yes
+                <MapPin size={18} /> Yes
               </div>
               <div 
                 className={`selection-card ${formData.isUPLB === false ? 'selected' : ''}`}
-                style={{ flex: 1 }}
+                style={{ flex: 1, padding: '1rem' }}
                 onClick={() => handleScreening('isUPLB', false)}
               >
                 No
@@ -111,22 +111,22 @@ export default function StudyForm() {
             </div>
           </div>
 
-          <div style={{ marginBottom: '2rem' }}>
-            <label style={{ display: 'block', marginBottom: '1rem', fontWeight: 600 }}>2. Do you use active transport as a primary means of transportation in campus?</label>
-            <div className="definition">
-              <strong>Definition:</strong> Active transport refers to physical activity as a means of transport, such as walking, cycling, or using non-motorized scooters.
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.75rem', fontWeight: 600 }}>2. Do you use active transport as a primary means of transportation in campus?</label>
+            <div className="definition" style={{ padding: '0.5rem', fontSize: '0.8rem' }}>
+              <strong>Definition:</strong> Active transport refers to physical activity as a means of transport (walking, cycling, etc).
             </div>
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.75rem' }}>
               <div 
                 className={`selection-card ${formData.isActiveTransport === true ? 'selected' : ''}`}
-                style={{ flex: 1 }}
+                style={{ flex: 1, padding: '1rem' }}
                 onClick={() => handleScreening('isActiveTransport', true)}
               >
-                <Bike size={20} /> Yes
+                <Bike size={18} /> Yes
               </div>
               <div 
                 className={`selection-card ${formData.isActiveTransport === false ? 'selected' : ''}`}
-                style={{ flex: 1 }}
+                style={{ flex: 1, padding: '1rem' }}
                 onClick={() => handleScreening('isActiveTransport', false)}
               >
                 No
@@ -134,19 +134,19 @@ export default function StudyForm() {
             </div>
           </div>
 
-          <div style={{ marginBottom: '2.5rem' }}>
-            <label style={{ display: 'block', marginBottom: '1rem', fontWeight: 600 }}>3. Are you currently enrolled in UPLB CMSC 173 - Human-Computer Interaction?</label>
-            <div style={{ display: 'flex', gap: '1rem' }}>
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.75rem', fontWeight: 600 }}>3. Are you currently enrolled in UPLB CMSC 173 - HCI?</label>
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
               <div 
                 className={`selection-card ${formData.isHCIStudent === true ? 'selected' : ''}`}
-                style={{ flex: 1 }}
+                style={{ flex: 1, padding: '1rem' }}
                 onClick={() => handleScreening('isHCIStudent', true)}
               >
                 Yes
               </div>
               <div 
                 className={`selection-card ${formData.isHCIStudent === false ? 'selected' : ''}`}
-                style={{ flex: 1 }}
+                style={{ flex: 1, padding: '1rem' }}
                 onClick={() => handleScreening('isHCIStudent', false)}
               >
                 No
