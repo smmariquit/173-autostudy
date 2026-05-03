@@ -24,16 +24,10 @@ export async function POST(req: Request) {
         </div>
         <h2 style="color: #014421; margin-top: 0; text-align: center;">KIMIroutes LB: Study Instructions</h2>
         <p>Hello <strong>${name}</strong>,</p>
-        <p>Thank you for participating in our research on campus active transport! <strong>This study involves testing a Figma prototype.</strong></p>
-        <div style="background: #fff3cd; color: #856404; padding: 12px 18px; border-radius: 8px; border: 1px solid #ffeeba; margin: 18px 0 24px 0; font-size: 0.98rem;">
-          <strong>What does it mean to test a Figma prototype?</strong><br/>
-          You will interact with a clickable mockup, not a real app. <br/>
-          <ul style="margin: 8px 0 0 18px; padding: 0;">
-            <li>You <b>cannot type</b> or enter text.</li>
-            <li>Some buttons or fields may not be interactive.</li>
-            <li>Only certain flows are clickable to simulate the experience.</li>
-          </ul>
-          Please focus on the navigation and overall experience, not on entering data.
+        <p>Thank you for participating in our research on campus active transport!</p>
+        <div style="background: #e6f4ea; color: #014421; padding: 12px 18px; border-radius: 8px; border: 1px solid #b7e4c7; margin: 18px 0 24px 0; font-size: 0.98rem;">
+          <strong>About KIMIroutes.lb:</strong><br/>
+          KIMIroutes.lb is a campus navigation app prototype designed to help UPLB students, faculty, and staff get around safely and efficiently. It features crowdsourced hazard reporting, class schedule syncing, weekly leaderboards, and a campus map of facilities and services—all in one place to make campus life easier and safer.
         </div>
         <p>Please follow the instructions and study order assigned to you below:</p>
         
