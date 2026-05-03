@@ -228,16 +228,7 @@ export default function StudyForm() {
             marginBottom: '1.5rem'
           }}>
             <h3 style={{ marginBottom: '1rem' }}>Informed Consent for "KIMIroutes LB: Campus Active Transport Study"</h3>
-            <p>I volunteer to participate in a research study conducted by UPLB students. I understand that the study is designed to gather information about campus active transport. <strong>This study uses a Figma prototype, which is a clickable mockup, not a real app.</strong> I will be asked to complete two tasks on the Maze platform.</p>
-            <div style={{ background: '#fff3cd', color: '#856404', padding: '10px 16px', borderRadius: '8px', border: '1px solid #ffeeba', margin: '12px 0', fontSize: '0.98rem' }}>
-              <strong>What does this mean?</strong><br/>
-              <ul style={{ margin: '8px 0 0 18px', padding: 0 }}>
-                <li>You <b>cannot type</b> or enter text.</li>
-                <li>Some buttons or fields may not be interactive.</li>
-                <li>Only certain flows are clickable to simulate the experience.</li>
-              </ul>
-              Please focus on the navigation and overall experience, not on entering data.
-            </div>
+            <p>I volunteer to participate in a research study conducted by UPLB students. I understand that the study is designed to gather information about campus active transport. I will be asked to complete two tasks on the Maze platform.</p>
             <p style={{ marginTop: '0.5rem' }}>My participation in this research is voluntary. I may withdraw and discontinue participation at any time without penalty. All information I provide will be kept confidential and used only for research purposes.</p>
             <p style={{ marginTop: '0.5rem' }}>By signing below, I acknowledge that I have read the above information and agree to participate in this study.</p>
           </div>
