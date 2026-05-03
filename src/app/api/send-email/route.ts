@@ -5,7 +5,7 @@ const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key');
 
 export async function POST(req: Request) {
   try {
-    const { name, email, studyOrder, signature } = await req.json();
+    const { name, email, fbContact, studyOrder, consentTimestamp } = await req.json();
 
     // Maze links (Placeholders - User should replace these)
     const mazeLinkA = "https://t.maze.co/530031921";
@@ -40,6 +40,15 @@ export async function POST(req: Request) {
           </a>
         </div>
 
+        <div style="background: #fff9f0; padding: 15px; border-radius: 8px; border: 1px solid #ffecb3; font-size: 0.85rem; color: #856404; margin-bottom: 30px;">
+          <strong>Consent Record:</strong><br/>
+          Name: ${name}<br/>
+          Email: ${email}<br/>
+          FB/Contact: ${fbContact}<br/>
+          Timestamp: ${new Date(consentTimestamp).toLocaleString('en-PH', { timeZone: 'Asia/Manila' })} (PHT)<br/>
+          Status: Electronically Consented via Checkbox
+        </div>
+
         <hr style="margin: 40px 0; border: 0; border-top: 1px solid #eee;" />
         
         <div style="font-size: 0.9rem; color: #666;">
@@ -67,7 +76,7 @@ export async function POST(req: Request) {
             </tr>
           </table>
           <p style="font-size: 0.8rem; font-style: italic; margin-top: 25px;">
-            This is an automated email. Your digital signature has been recorded and attached to your consent record.
+            This is an automated email. A copy of this consent record has been sent to the research team.
           </p>
         </div>
       </div>
@@ -77,7 +86,8 @@ export async function POST(req: Request) {
     const { data, error } = await resend.emails.send({
       from: 'KIMIroutes LB <kimirouteslb@stimmie.dev>',
       to: [email],
-      subject: 'Your Study Instructions: Campus Active Transport',
+      bcc: ['smmariquit@up.edu.ph'],
+      subject: 'Your Study Instructions: KIMIroutes LB',
       html: emailContent,
     });
 

@@ -12,10 +12,9 @@ export default function StudyForm() {
     name: '',
     email: '',
     fbContact: '',
-    consentSigned: false
+    hasConsented: false
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const sigCanvas = useRef<SignatureCanvas>(null);
 
   const handleScreening = (key: 'isUPLB' | 'isActiveTransport', value: boolean) => {
     setFormData({ ...formData, [key]: value });
@@ -34,7 +33,7 @@ export default function StudyForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!sigCanvas.current?.isEmpty()) {
+    if (formData.hasConsented) {
       setIsSubmitting(true);
       
       const studyOrder = Math.random() > 0.5 ? 'Study A first, then Study B' : 'Study B first, then Study A';
@@ -46,7 +45,7 @@ export default function StudyForm() {
           body: JSON.stringify({
             ...formData,
             studyOrder,
-            signature: sigCanvas.current?.getTrimmedCanvas().toDataURL('image/png')
+            consentTimestamp: new Date().toISOString()
           }),
         });
 
@@ -62,7 +61,7 @@ export default function StudyForm() {
         setIsSubmitting(false);
       }
     } else {
-      alert('Please sign the consent form to continue.');
+      alert('Please agree to the consent form to continue.');
     }
   };
 
@@ -216,23 +215,41 @@ export default function StudyForm() {
             <p style={{ marginTop: '0.5rem' }}>By signing below, I acknowledge that I have read the above information and agree to participate in this study.</p>
           </div>
 
-          <label style={{ fontSize: '0.9rem', color: 'var(--text-dim)', marginBottom: '0.5rem', display: 'block' }}>
-            <ShieldCheck size={14} style={{ verticalAlign: 'middle', marginRight: '4px' }} /> Digital Signature
-          </label>
-          <div className="signature-container">
-            <SignatureCanvas 
-              ref={sigCanvas}
-              penColor="black"
-              canvasProps={{ width: 600, height: 200, className: 'sigCanvas' }} 
-            />
-          </div>
-          <button 
-            type="button"
-            style={{ fontSize: '0.75rem', background: 'transparent', border: 'none', color: 'var(--text-dim)', marginTop: '0.5rem', cursor: 'pointer' }}
-            onClick={() => sigCanvas.current?.clear()}
+          <div 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'flex-start', 
+              gap: '1rem', 
+              background: 'rgba(255, 255, 255, 0.02)', 
+              padding: '1.25rem', 
+              borderRadius: '12px', 
+              border: '1px solid var(--glass-border)',
+              cursor: 'pointer'
+            }}
+            onClick={() => setFormData({ ...formData, hasConsented: !formData.hasConsented })}
           >
-            Clear Signature
-          </button>
+            <div style={{ 
+              width: '24px', 
+              height: '24px', 
+              borderRadius: '6px', 
+              border: '2px solid var(--primary)', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              background: formData.hasConsented ? 'var(--primary)' : 'transparent',
+              transition: 'all 0.2s',
+              flexShrink: 0
+            }}>
+              {formData.hasConsented && <CheckCircle size={16} color="white" />}
+            </div>
+            <p style={{ fontSize: '0.9rem', color: formData.hasConsented ? 'var(--text)' : 'var(--text-dim)', lineHeight: '1.4' }}>
+              I have read the informed consent and I voluntarily agree to participate in this study. I understand that my data will be used for research purposes only.
+            </p>
+          </div>
+          <p style={{ fontSize: '0.7rem', color: 'var(--text-dim)', marginTop: '0.5rem', textAlign: 'right' }}>
+            <ShieldCheck size={10} style={{ verticalAlign: 'middle', marginRight: '2px' }} /> 
+            Consent will be timestamped and emailed to you.
+          </p>
 
           <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
             <button className="btn btn-outline" style={{ flex: 1 }} onClick={prevStep}>Back</button>
