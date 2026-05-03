@@ -44,9 +44,25 @@ export default function Home() {
             <h1 style={{ fontSize: '1.8rem', marginBottom: '1rem', lineHeight: '1.2' }}>Campus Active Transport Analysis</h1>
             <div style={{ color: 'var(--text-dim)', fontSize: '0.95rem', lineHeight: '1.5' }}>
               <p style={{ marginBottom: '1rem' }}>
-                Hello! We are student researchers at UPLB evaluating an app prototype for campus active transport.
+                Hello! We are student researchers at UPLB evaluating an app prototype for campus active transport. <strong>This study uses a Figma prototype.</strong>
               </p>
-              
+              <div style={{ 
+                textAlign: 'left', 
+                background: 'rgba(255, 255, 255, 0.08)', 
+                padding: '1rem 1.5rem', 
+                borderRadius: '16px', 
+                border: '1px solid var(--glass-border)',
+                marginBottom: '1rem'
+              }}>
+                <strong>What is a Figma prototype?</strong><br/>
+                You will interact with a clickable mockup, not a real app.<br/>
+                <ul style={{ margin: '8px 0 0 18px', padding: 0 }}>
+                  <li>You <b>cannot type</b> or enter text.</li>
+                  <li>Some buttons or fields may not be interactive.</li>
+                  <li>Only certain flows are clickable to simulate the experience.</li>
+                </ul>
+                Please focus on the navigation and overall experience, not on entering data.
+              </div>
               <div style={{ 
                 textAlign: 'left', 
                 background: 'rgba(255, 255, 255, 0.02)', 
