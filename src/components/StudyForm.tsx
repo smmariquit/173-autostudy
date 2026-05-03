@@ -210,7 +210,7 @@ export default function StudyForm() {
             border: '1px solid var(--glass-border)',
             marginBottom: '1.5rem'
           }}>
-            <h3 style={{ marginBottom: '1rem' }}>Informed Consent for "Campus Active Transport Study"</h3>
+            <h3 style={{ marginBottom: '1rem' }}>Informed Consent for "KIMIroutes LB: Campus Active Transport Study"</h3>
             <p>I volunteer to participate in a research study conducted by UPLB students. I understand that the study is designed to gather information about campus active transport. I will be asked to complete two tasks on the Maze platform.</p>
             <p style={{ marginTop: '0.5rem' }}>My participation in this research is voluntary. I may withdraw and discontinue participation at any time without penalty. All information I provide will be kept confidential and used only for research purposes.</p>
             <p style={{ marginTop: '0.5rem' }}>By signing below, I acknowledge that I have read the above information and agree to participate in this study.</p>
