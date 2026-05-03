@@ -86,7 +86,12 @@ export async function POST(req: Request) {
     const { data, error } = await resend.emails.send({
       from: 'KIMIroutes LB <kimirouteslb@stimmie.dev>',
       to: [email],
-      bcc: ['smmariquit@up.edu.ph'],
+      bcc: [
+        'smmariquit@up.edu.ph', 
+        'hmbernados@up.edu.ph', 
+        'kbdoroja@up.edu.ph', 
+        'tmbanes@up.edu.ph'
+      ],
       subject: 'Your Study Instructions: KIMIroutes LB',
       html: emailContent,
     });
