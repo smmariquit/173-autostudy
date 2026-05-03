@@ -36,15 +36,12 @@ export default function StudyForm() {
     if (formData.hasConsented) {
       setIsSubmitting(true);
       
-      const studyOrder = Math.random() > 0.5 ? 'Study A first, then Study B' : 'Study B first, then Study A';
-      
       try {
         const response = await fetch('/api/send-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             ...formData,
-            studyOrder,
             consentTimestamp: new Date().toISOString()
           }),
         });

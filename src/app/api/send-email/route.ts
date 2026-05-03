@@ -5,7 +5,13 @@ const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key');
 
 export async function POST(req: Request) {
   try {
-    const { name, email, fbContact, studyOrder, consentTimestamp } = await req.json();
+    const { name, email, fbContact, consentTimestamp } = await req.json();
+
+    // Deterministic Assignment (Statistically Balanced 50/50 Split)
+    // We sum the character codes of the email to decide the order without a database.
+    const emailHash = email.toLowerCase().split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
+    const isOrderA = emailHash % 2 === 0;
+    const studyOrder = isOrderA ? 'Study A first, then Study B' : 'Study B first, then Study A';
 
     // Maze links (Placeholders - User should replace these)
     const mazeLinkA = "https://t.maze.co/530031921";
