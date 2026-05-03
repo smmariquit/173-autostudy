@@ -79,7 +79,7 @@ export default function StudyForm() {
   }
 
   return (
-    <div className="card">
+    <div className="card" style={{ width: '100%' }}>
       <div className="step-indicator">
         <div className={`step ${step >= 1 ? 'active' : ''}`}></div>
         <div className={`step ${step >= 2 ? 'active' : ''}`}></div>

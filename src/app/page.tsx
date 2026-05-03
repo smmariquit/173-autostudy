@@ -9,9 +9,18 @@ export default function Home() {
         gap: '1.5rem', 
         alignItems: 'stretch',
         flexWrap: 'wrap',
-        maxHeight: '100%'
+        maxHeight: '100%',
+        justifyContent: 'center'
       }}>
-        <div className="card" style={{ flex: '1 1 350px', textAlign: 'center', padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <div className="card" style={{ 
+          flex: '1 1 350px', 
+          textAlign: 'center', 
+          padding: '2rem', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          justifyContent: 'center',
+          minHeight: '600px' // Stable height
+        }}>
           <h2 style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.5rem' }}>
             KIMIroutes LB
           </h2>
@@ -59,7 +68,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div style={{ flex: '1 1 450px', display: 'flex' }}>
+        <div style={{ flex: '1 1 450px', display: 'flex', minHeight: '600px' }}>
           <StudyForm />
         </div>
       </div>
