@@ -273,6 +273,18 @@ export default function StudyForm() {
             Please check your inbox (and spam folder) to find your unique links to the Maze study.
           </p>
           <div style={{ 
+            background: 'rgba(59, 130, 246, 0.1)', 
+            padding: '1.5rem', 
+            borderRadius: '16px', 
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            marginBottom: '1rem',
+            textAlign: 'left'
+          }}>
+            <p style={{ fontSize: '0.9rem', color: '#60a5fa' }}>
+              <strong>⚠️ Important:</strong> When you start the Maze tasks, please use the <strong>exact same name</strong> you provided here: <span style={{ textDecoration: 'underline', color: 'white' }}>{formData.name}</span>. This is required for us to match your registration with your study results.
+            </p>
+          </div>
+          <div style={{ 
             background: 'rgba(16, 185, 129, 0.05)', 
             padding: '1.5rem', 
             borderRadius: '16px', 

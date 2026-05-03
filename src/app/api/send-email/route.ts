@@ -26,6 +26,10 @@ export async function POST(req: Request) {
         <p>Hello <strong>${name}</strong>,</p>
         <p>Thank you for participating in our research on campus active transport! To ensure the validity of our study, please complete the tasks in the specific order listed below.</p>
         
+        <div style="background: #eef2ff; padding: 15px; border-radius: 8px; border: 1px solid #c7d2fe; color: #3730a3; margin-bottom: 25px; font-size: 0.95rem;">
+          <strong>CRITICAL:</strong> When asked for your name in the Maze tasks, please use the exact same name you used here: <span style="font-weight: bold; text-decoration: underline;">${name}</span>. This is vital for us to match your results correctly.
+        </div>
+        
         <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #014421;">
           <h3 style="margin-top: 0; font-size: 1rem; color: #014421; text-transform: uppercase; letter-spacing: 0.05em;">Your Assigned Study Order:</h3>
           <p style="font-size: 1.25rem; font-weight: bold; color: #333; margin-bottom: 0;">${studyOrder}</p>
