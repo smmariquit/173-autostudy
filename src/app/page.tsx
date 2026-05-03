@@ -1,6 +1,21 @@
-import StudyForm from '@/components/StudyForm';
+"use client";
+
+import { useState, useEffect } from "react";
+import StudyForm from "@/components/StudyForm";
 
 export default function Home() {
+  const [isMobile, setIsMobile] = useState(false);
+  const [mobileStep, setMobileStep] = useState<'intro' | 'form'>('intro');
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   return (
     <main className="container">
       <div style={{ 
@@ -12,65 +27,100 @@ export default function Home() {
         maxHeight: '100%',
         justifyContent: 'center'
       }}>
-        <div className="card" style={{ 
-          flex: '1 1 350px', 
-          textAlign: 'center', 
-          padding: '2rem', 
-          display: 'flex', 
-          flexDirection: 'column', 
-          justifyContent: 'center',
-          minHeight: '600px' // Stable height
-        }}>
-          <h2 style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.5rem' }}>
-            KIMIroutes LB
-          </h2>
-          <h1 style={{ fontSize: '1.8rem', marginBottom: '1rem', lineHeight: '1.2' }}>Campus Active Transport Analysis</h1>
-          <div style={{ color: 'var(--text-dim)', fontSize: '0.95rem', lineHeight: '1.5' }}>
-            <p style={{ marginBottom: '1rem' }}>
-              Hello! We are student researchers at UPLB evaluating an app prototype for campus active transport.
-            </p>
-            <p style={{ marginBottom: '1rem', fontSize: '0.85rem' }}>
-              For inquiries, contact any of us:
-            </p>
-            
-            <div style={{ 
-              textAlign: 'left', 
-              background: 'rgba(255, 255, 255, 0.02)', 
-              padding: '1rem 1.5rem', 
-              borderRadius: '16px', 
-              border: '1px solid var(--glass-border)' 
-            }}>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-                gap: '0.75rem',
-                fontSize: '0.75rem',
-                color: 'var(--text)',
+        {/* Intro Panel - Hidden on mobile if form is shown */}
+        {(!isMobile || mobileStep === 'intro') && (
+          <div className="card animate-in" style={{ 
+            flex: '1 1 350px', 
+            textAlign: 'center', 
+            padding: '2rem', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            justifyContent: 'center',
+            minHeight: isMobile ? 'auto' : '600px'
+          }}>
+            <h2 style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '0.5rem' }}>
+              KIMIroutes LB
+            </h2>
+            <h1 style={{ fontSize: '1.8rem', marginBottom: '1rem', lineHeight: '1.2' }}>Campus Active Transport Analysis</h1>
+            <div style={{ color: 'var(--text-dim)', fontSize: '0.95rem', lineHeight: '1.5' }}>
+              <p style={{ marginBottom: '1rem' }}>
+                Hello! We are student researchers at UPLB evaluating an app prototype for campus active transport.
+              </p>
+              
+              <div style={{ 
+                textAlign: 'left', 
+                background: 'rgba(255, 255, 255, 0.02)', 
+                padding: '1rem 1.5rem', 
+                borderRadius: '16px', 
+                border: '1px solid var(--glass-border)',
+                marginBottom: '1.5rem'
               }}>
-                <div>
-                  <p style={{ fontWeight: 700 }}>Simonee Mariquit</p>
-                  <p style={{ opacity: 0.6, fontSize: '0.7rem' }}>smmariquit@up.edu.ph</p>
-                </div>
-                <div>
-                  <p style={{ fontWeight: 700 }}>Hugz Bernados</p>
-                  <p style={{ opacity: 0.6, fontSize: '0.7rem' }}>hmbernados@up.edu.ph</p>
-                </div>
-                <div>
-                  <p style={{ fontWeight: 700 }}>Kristina Doroja</p>
-                  <p style={{ opacity: 0.6, fontSize: '0.7rem' }}>kbdoroja@up.edu.ph</p>
-                </div>
-                <div>
-                  <p style={{ fontWeight: 700 }}>Lane Bañes</p>
-                  <p style={{ opacity: 0.6, fontSize: '0.7rem' }}>tmbanes@up.edu.ph</p>
+                <p style={{ marginBottom: '0.75rem', fontSize: '0.8rem', textAlign: 'center', opacity: 0.8 }}>Contact Research Team:</p>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                  gap: '0.75rem',
+                  fontSize: '0.75rem',
+                  color: 'var(--text)',
+                }}>
+                  <div>
+                    <p style={{ fontWeight: 700 }}>Simonee Mariquit</p>
+                    <p style={{ opacity: 0.6, fontSize: '0.7rem' }}>smmariquit@up.edu.ph</p>
+                  </div>
+                  <div>
+                    <p style={{ fontWeight: 700 }}>Hugz Bernados</p>
+                    <p style={{ opacity: 0.6, fontSize: '0.7rem' }}>hmbernados@up.edu.ph</p>
+                  </div>
+                  <div>
+                    <p style={{ fontWeight: 700 }}>Kristina Doroja</p>
+                    <p style={{ opacity: 0.6, fontSize: '0.7rem' }}>kbdoroja@up.edu.ph</p>
+                  </div>
+                  <div>
+                    <p style={{ fontWeight: 700 }}>Lane Bañes</p>
+                    <p style={{ opacity: 0.6, fontSize: '0.7rem' }}>tmbanes@up.edu.ph</p>
+                  </div>
                 </div>
               </div>
+
+              {isMobile && (
+                <button 
+                  className="btn btn-primary" 
+                  style={{ width: '100%' }}
+                  onClick={() => setMobileStep('form')}
+                >
+                  Continue to Screening
+                </button>
+              )}
             </div>
           </div>
-        </div>
+        )}
 
-        <div style={{ flex: '1 1 450px', display: 'flex', minHeight: '600px' }}>
-          <StudyForm />
-        </div>
+        {/* Form Panel - Hidden on mobile if intro is shown */}
+        {(!isMobile || mobileStep === 'form') && (
+          <div className="animate-in" style={{ flex: '1 1 450px', display: 'flex', minHeight: isMobile ? 'auto' : '600px', width: isMobile ? '100%' : 'auto' }}>
+            <div style={{ width: '100%' }}>
+              {isMobile && (
+                <button 
+                  onClick={() => setMobileStep('intro')}
+                  style={{ 
+                    background: 'none', 
+                    border: 'none', 
+                    color: 'var(--primary)', 
+                    marginBottom: '1rem', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '0.5rem',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem'
+                  }}
+                >
+                  ← Back to Info
+                </button>
+              )}
+              <StudyForm />
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );
