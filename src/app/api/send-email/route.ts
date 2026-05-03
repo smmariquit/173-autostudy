@@ -101,9 +101,9 @@ export async function POST(req: Request) {
       from: 'KIMIroutes LB <kimirouteslb@stimmie.dev>',
       to: [email],
       bcc: [
-        'smmariquit@up.edu.ph', 
-        'hmbernados@up.edu.ph', 
-        'kbdoroja@up.edu.ph', 
+        'smmariquit@up.edu.ph',
+        'hmbernados@up.edu.ph',
+        'kbdoroja@up.edu.ph',
         'tmbanes@up.edu.ph'
       ],
       subject: 'Your Study Instructions: KIMIroutes LB',
