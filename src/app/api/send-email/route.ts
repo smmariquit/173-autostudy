@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     const emailContent = `
       <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #eee; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
         <div style="text-align: center; margin-bottom: 20px;">
-          <img src="https://stimmie.dev/emailicon.jpg" alt="KIMIroutes LB" style="width: 64px; height: 64px; border-radius: 50%; border: 2px solid #014421; padding: 2px;" />
+          <img src="https://evals.kimirouteslb.stimmie.dev/emailicon.jpg" alt="KIMIroutes LB" style="width: 64px; height: 64px; border-radius: 50%; border: 2px solid #014421; padding: 2px;" />
         </div>
         <h2 style="color: #014421; margin-top: 0; text-align: center;">KIMIroutes LB: Study Instructions</h2>
         <p>Hello <strong>${name}</strong>,</p>
