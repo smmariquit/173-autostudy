@@ -178,7 +178,7 @@ export async function POST(req: Request) {
           <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #f3f4f6;">
             <p style="margin: 0 0 8px 0; font-size: 0.8rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Participant Name:</p>
             <p style="margin: 0; font-size: 1.1rem; color: #111827; font-weight: 700;">${name}</p>
-            <p style={{ margin: '8px 0 0 0', fontSize: '0.85rem', color: '#3730a3' }}>
+            <p style="margin: 8px 0 0 0; font-size: 0.85rem; color: #3730a3;">
               <strong>Important:</strong> Use this exact name in all Maze tasks to match your results.
             </p>
           </div>
