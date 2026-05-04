@@ -1,11 +1,146 @@
-import { Resend } from 'resend';
+import { Redis } from '@upstash/redis';
 import { NextResponse } from 'next/server';
 
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key');
+const brevoApiKey = process.env.BREVO_API_KEY;
+const brevoSenderEmail = process.env.BREVO_SENDER_EMAIL;
+const brevoSenderName = process.env.BREVO_SENDER_NAME || 'KIMIroutes LB';
+const brevoReplyTo = process.env.BREVO_REPLY_TO;
+const recaptchaAction = 'study_form_submit';
+const recaptchaMinScore = 0.5;
+const ipRateLimit = { max: 5, windowSeconds: 600 };
+const emailRateLimit = { max: 1, windowSeconds: 3600 };
+const redis = Redis.fromEnv();
+
+type RecaptchaVerifyResponse = {
+  success: boolean;
+  score?: number;
+  action?: string;
+  challenge_ts?: string;
+  hostname?: string;
+  'error-codes'?: string[];
+};
+
+const isUpEmail = (email: string) => email.toLowerCase().endsWith('@up.edu.ph');
+
+const getClientIp = (req: Request) => {
+  const forwardedFor = req.headers.get('x-forwarded-for');
+  if (forwardedFor) {
+    return forwardedFor.split(',')[0]?.trim();
+  }
+
+  return (
+    req.headers.get('x-real-ip') ||
+    req.headers.get('cf-connecting-ip') ||
+    null
+  );
+};
+
+const incrementWithTtl = async (key: string, ttlSeconds: number) => {
+  const count = await redis.incr(key);
+  if (count === 1) {
+    await redis.expire(key, ttlSeconds);
+  }
+  return count as number;
+};
+
+const verifyRecaptcha = async (token: string, remoteIp?: string | null) => {
+  const secret = process.env.RECAPTCHA_SECRET_KEY;
+  if (!secret) {
+    throw new Error('Missing RECAPTCHA_SECRET_KEY');
+  }
+
+  const params = new URLSearchParams({
+    secret,
+    response: token,
+  });
+
+  if (remoteIp) {
+    params.set('remoteip', remoteIp);
+  }
+
+  const response = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params.toString(),
+    cache: 'no-store',
+  });
+
+  return (await response.json()) as RecaptchaVerifyResponse;
+};
+
+const sendBrevoEmail = async (payload: { to: string; bcc: string[]; subject: string; html: string }) => {
+  if (!brevoApiKey || !brevoSenderEmail) {
+    throw new Error('Missing Brevo configuration.');
+  }
+
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'api-key': brevoApiKey,
+    },
+    body: JSON.stringify({
+      sender: { email: brevoSenderEmail, name: brevoSenderName },
+      to: [{ email: payload.to }],
+      bcc: payload.bcc.map((email) => ({ email })),
+      subject: payload.subject,
+      htmlContent: payload.html,
+      replyTo: brevoReplyTo ? { email: brevoReplyTo } : undefined,
+    }),
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`Brevo Error: ${response.status} ${errorBody}`);
+  }
+};
 
 export async function POST(req: Request) {
   try {
-    const { name, email, fbContact, consentTimestamp, isHCIStudent } = await req.json();
+    const { name, email, fbContact, consentTimestamp, isHCIStudent, recaptchaToken } = await req.json();
+
+    if (!email || !isUpEmail(email)) {
+      return NextResponse.json({ error: 'Only @up.edu.ph emails are allowed.' }, { status: 400 });
+    }
+
+    const clientIp = getClientIp(req) || 'unknown';
+
+    try {
+      const [ipCount, emailCount] = await Promise.all([
+        incrementWithTtl(`rate:ip:${clientIp}`, ipRateLimit.windowSeconds),
+        incrementWithTtl(`rate:email:${email.toLowerCase()}`, emailRateLimit.windowSeconds),
+      ]);
+
+      if (ipCount > ipRateLimit.max) {
+        return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+      }
+
+      if (emailCount > emailRateLimit.max) {
+        return NextResponse.json({ error: 'Too many requests for this email. Please try again later.' }, { status: 429 });
+      }
+    } catch (error) {
+      console.error('Rate limit error:', error);
+      return NextResponse.json({ error: 'Rate limit unavailable. Please try again later.' }, { status: 503 });
+    }
+
+    if (!recaptchaToken) {
+      return NextResponse.json({ error: 'Missing reCAPTCHA token.' }, { status: 400 });
+    }
+
+    const recaptcha = await verifyRecaptcha(recaptchaToken, clientIp);
+
+    if (!recaptcha.success) {
+      return NextResponse.json({ error: 'reCAPTCHA verification failed.' }, { status: 403 });
+    }
+
+    if (recaptcha.action !== recaptchaAction) {
+      return NextResponse.json({ error: 'reCAPTCHA action mismatch.' }, { status: 403 });
+    }
+
+    if ((recaptcha.score ?? 0) < recaptchaMinScore) {
+      return NextResponse.json({ error: 'reCAPTCHA score too low.' }, { status: 403 });
+    }
 
     // Deterministic Assignment (Statistically Balanced 50/50 Split)
     // We sum the character codes of the email to decide the order without a database.
@@ -116,25 +251,24 @@ export async function POST(req: Request) {
     `;
 
     // Send email to participant
-    const { data, error } = await resend.emails.send({
-      from: 'KIMIroutes LB <kimirouteslb@stimmie.dev>',
-      to: [email],
-      bcc: [
-        'smmariquit@up.edu.ph',
-        'hmbernados@up.edu.ph',
-        'kbdoroja@up.edu.ph',
-        'tmbanes@up.edu.ph'
-      ],
-      subject: 'Your Study Instructions: KIMIroutes LB',
-      html: emailContent,
-    });
-
-    if (error) {
-      console.error('Resend Error:', error);
-      return NextResponse.json({ error }, { status: 400 });
+    try {
+      await sendBrevoEmail({
+        to: email,
+        bcc: [
+          'smmariquit@up.edu.ph',
+          'hmbernados@up.edu.ph',
+          'kbdoroja@up.edu.ph',
+          'tmbanes@up.edu.ph',
+        ],
+        subject: 'Your Study Instructions: KIMIroutes LB',
+        html: emailContent,
+      });
+    } catch (error) {
+      console.error('Brevo Error:', error);
+      return NextResponse.json({ error: 'Email delivery failed.' }, { status: 502 });
     }
 
-    return NextResponse.json({ success: true, data });
+    return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }

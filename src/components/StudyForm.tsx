@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
+import Script from 'next/script';
 import SignatureCanvas from 'react-signature-canvas';
 import { ChevronRight, CheckCircle, Mail, Link, User, ArrowRight, ShieldCheck, MapPin, Bike } from 'lucide-react';
 
@@ -16,6 +17,29 @@ export default function StudyForm() {
     hasConsented: false
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [captchaReady, setCaptchaReady] = useState(false);
+  const recaptchaAction = 'study_form_submit';
+  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
+  const isUpEmail = formData.email.trim().toLowerCase().endsWith('@up.edu.ph');
+
+  const getRecaptchaToken = async (): Promise<string> => {
+    if (!siteKey) {
+      throw new Error('Missing reCAPTCHA site key.');
+    }
+    if (typeof window === 'undefined' || !window.grecaptcha) {
+      throw new Error('reCAPTCHA is not ready yet.');
+    }
+
+    return new Promise((resolve, reject) => {
+      window.grecaptcha.ready(() => {
+        window.grecaptcha
+          .execute(siteKey, { action: recaptchaAction })
+          .then(resolve)
+          .catch(reject);
+      });
+    });
+  };
 
   const handleScreening = (key: 'isUPLB' | 'isActiveTransport' | 'isHCIStudent', value: boolean) => {
     setFormData({ ...formData, [key]: value });
@@ -34,32 +58,45 @@ export default function StudyForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.hasConsented) {
-      setIsSubmitting(true);
-      
-      try {
-        const response = await fetch('/api/send-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ...formData,
-            consentTimestamp: new Date().toISOString()
-          }),
-        });
-
-        if (response.ok) {
-          setStep(4);
-        } else {
-          alert('Something went wrong. Please try again.');
-        }
-      } catch (error) {
-        console.error(error);
-        alert('Error sending data.');
-      } finally {
-        setIsSubmitting(false);
-      }
-    } else {
+    if (!formData.hasConsented) {
       alert('Please agree to the consent form to continue.');
+      return;
+    }
+
+    if (!isUpEmail) {
+      alert('Please use your @up.edu.ph email address.');
+      return;
+    }
+
+    if (!siteKey) {
+      alert('Missing reCAPTCHA configuration. Please try again later.');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const recaptchaToken = await getRecaptchaToken();
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...formData,
+          consentTimestamp: new Date().toISOString(),
+          recaptchaToken,
+        }),
+      });
+
+      if (response.ok) {
+        setStep(4);
+      } else {
+        alert('Something went wrong. Please try again.');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Error sending data.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -80,6 +117,13 @@ export default function StudyForm() {
 
   return (
     <div className="card" style={{ width: '100%' }}>
+      {siteKey && (
+        <Script
+          src={`https://www.google.com/recaptcha/api.js?render=${siteKey}`}
+          strategy="afterInteractive"
+          onLoad={() => setCaptchaReady(true)}
+        />
+      )}
       <div className="step-indicator">
         <div className={`step ${step >= 1 ? 'active' : ''}`}></div>
         <div className={`step ${step >= 2 ? 'active' : ''}`}></div>
@@ -185,6 +229,9 @@ export default function StudyForm() {
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             />
+            {formData.email && !isUpEmail && (
+              <p className="error-text">Use your @up.edu.ph email address.</p>
+            )}
           </div>
 
           <div className="input-group">
@@ -202,7 +249,7 @@ export default function StudyForm() {
             <button 
               className="btn btn-primary" 
               style={{ flex: 2 }} 
-              disabled={!formData.name || !formData.email || !formData.fbContact}
+              disabled={!formData.name || !formData.email || !formData.fbContact || !isUpEmail}
               onClick={nextStep}
             >
               Consent Form <ArrowRight size={18} />
@@ -274,7 +321,7 @@ export default function StudyForm() {
             <button 
               className="btn btn-primary" 
               style={{ flex: 2 }} 
-              disabled={isSubmitting}
+              disabled={isSubmitting || !captchaReady}
               onClick={handleSubmit}
             >
               {isSubmitting ? 'Processing...' : 'Sign & Submit'}
