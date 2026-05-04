@@ -6,9 +6,9 @@ const brevoSenderEmail = process.env.BREVO_SENDER_EMAIL;
 const brevoSenderName = process.env.BREVO_SENDER_NAME || 'KIMIroutes LB';
 const brevoReplyTo = process.env.BREVO_REPLY_TO;
 const recaptchaAction = 'study_form_submit';
-const recaptchaMinScore = 0.5;
+const recaptchaMinScore = 0.4;
 const ipRateLimit = { max: 5, windowSeconds: 600 };
-const emailRateLimit = { max: 1, windowSeconds: 3600 };
+const emailRateLimit = { max: 5, windowSeconds: 600 };
 const redis = Redis.fromEnv();
 
 type RecaptchaVerifyResponse = {
