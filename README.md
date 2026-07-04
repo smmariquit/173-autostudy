@@ -5,7 +5,7 @@ A premium, research-focused landing page for conducting a within-cluster t-test 
 ## Features
 
 - **Screening**: Automated eligibility check for UPLB affiliation and active transport usage.
-- **Seamless Consent**: Integrated digital signature pad (no PDF download required).
+- **smooth Consent**: Integrated digital signature pad (no PDF download required).
 - **Randomization**: Logic to assign participants to different study orders (Study 1 first vs Study 2 first) to ensure experimental balance.
 - **Automated Emails**: Uses [Brevo](https://www.brevo.com) to deliver custom Maze links and instructions.
 - **Rate Limiting**: Per-IP and per-email throttling via Upstash Redis.
@@ -24,36 +24,36 @@ A premium, research-focused landing page for conducting a within-cluster t-test 
 
 1. **Clone the repo**
 2. **Install dependencies**:
-   ```bash
+ ```bash
    npm install
    ```
 3. **Configure Environment Variables**:
-   Create a `.env.local` file and add your Brevo API key and sender:
-   ```
+ Create a `.env.local` file and add your Brevo API key and sender:
+ ```
    BREVO_API_KEY=your_brevo_api_key
    BREVO_SENDER_EMAIL=verified_sender@up.edu.ph
    BREVO_SENDER_NAME=KIMIroutes LB
    # Optional:
    # BREVO_REPLY_TO=your_reply_to@up.edu.ph
    ```
-   Add your reCAPTCHA v3 keys:
-   ```
+ Add your reCAPTCHA v3 keys:
+ ```
    NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your_site_key
    RECAPTCHA_SECRET_KEY=your_secret_key
    ```
-   Add Upstash Redis credentials for rate limiting:
-   ```
+ Add Upstash Redis credentials for rate limiting:
+ ```
    UPSTASH_REDIS_REST_URL=your_upstash_redis_rest_url
    UPSTASH_REDIS_REST_TOKEN=your_upstash_redis_rest_token
    ```
 4. **Customize Maze Links**:
-   Update the links in `src/app/api/send-email/route.ts`:
-   ```javascript
+ Update the links in `src/app/api/send-email/route.ts`:
+ ```javascript
    const mazeLinkA = "YOUR_MAZE_LINK_A";
    const mazeLinkB = "YOUR_MAZE_LINK_B";
    ```
 5. **Run Locally**:
-   ```bash
+ ```bash
    npm run dev
    ```
 
