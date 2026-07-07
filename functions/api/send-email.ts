@@ -1,15 +1,24 @@
 import { Redis } from '@upstash/redis';
-import { NextResponse } from 'next/server';
 
-const brevoApiKey = process.env.BREVO_API_KEY;
-const brevoSenderEmail = process.env.BREVO_SENDER_EMAIL;
-const brevoSenderName = process.env.BREVO_SENDER_NAME || 'KIMIroutes LB';
-const brevoReplyTo = process.env.BREVO_REPLY_TO;
+type Env = {
+  BREVO_API_KEY?: string;
+  BREVO_SENDER_EMAIL?: string;
+  BREVO_SENDER_NAME?: string;
+  BREVO_REPLY_TO?: string;
+  RECAPTCHA_SECRET_KEY?: string;
+  UPSTASH_REDIS_REST_URL?: string;
+  UPSTASH_REDIS_REST_TOKEN?: string;
+};
+
+type SendEmailContext = {
+  request: Request;
+  env: Env;
+};
+
 const recaptchaAction = 'study_form_submit';
 const recaptchaMinScore = 0.1;
 const ipRateLimit = { max: 5, windowSeconds: 600 };
 const emailRateLimit = { max: 5, windowSeconds: 600 };
-const redis = Redis.fromEnv();
 
 type RecaptchaVerifyResponse = {
   success: boolean;
@@ -35,7 +44,7 @@ const getClientIp = (req: Request) => {
   );
 };
 
-const incrementWithTtl = async (key: string, ttlSeconds: number) => {
+const incrementWithTtl = async (redis: Redis, key: string, ttlSeconds: number) => {
   const count = await redis.incr(key);
   if (count === 1) {
     await redis.expire(key, ttlSeconds);
@@ -43,12 +52,7 @@ const incrementWithTtl = async (key: string, ttlSeconds: number) => {
   return count as number;
 };
 
-const verifyRecaptcha = async (token: string, remoteIp?: string | null) => {
-  const secret = process.env.RECAPTCHA_SECRET_KEY;
-  if (!secret) {
-    throw new Error('Missing RECAPTCHA_SECRET_KEY');
-  }
-
+const verifyRecaptcha = async (secret: string, token: string, remoteIp?: string | null) => {
   const params = new URLSearchParams({
     secret,
     response: token,
@@ -68,7 +72,15 @@ const verifyRecaptcha = async (token: string, remoteIp?: string | null) => {
   return (await response.json()) as RecaptchaVerifyResponse;
 };
 
-const sendBrevoEmail = async (payload: { to: string; bcc: string[]; subject: string; html: string }) => {
+const sendBrevoEmail = async (
+  env: Env,
+  payload: { to: string; bcc: string[]; subject: string; html: string },
+) => {
+  const brevoApiKey = env.BREVO_API_KEY;
+  const brevoSenderEmail = env.BREVO_SENDER_EMAIL;
+  const brevoSenderName = env.BREVO_SENDER_NAME || 'KIMIroutes LB';
+  const brevoReplyTo = env.BREVO_REPLY_TO;
+
   if (!brevoApiKey || !brevoSenderEmail) {
     throw new Error('Missing Brevo configuration.');
   }
@@ -96,50 +108,67 @@ const sendBrevoEmail = async (payload: { to: string; bcc: string[]; subject: str
   }
 };
 
-export async function POST(req: Request) {
+export const onRequestPost = async (context: SendEmailContext) => {
+  const { request, env } = context;
+
   try {
-    const { name, email, fbContact, consentTimestamp, isHCIStudent, recaptchaToken } = await req.json();
+    const { name, email, fbContact, consentTimestamp, isHCIStudent, recaptchaToken } = await request.json();
 
     if (!email || !isUpEmail(email)) {
-      return NextResponse.json({ error: 'Only @up.edu.ph emails are allowed.' }, { status: 400 });
+      return Response.json({ error: 'Only @up.edu.ph emails are allowed.' }, { status: 400 });
     }
 
-    const clientIp = getClientIp(req) || 'unknown';
+    const clientIp = getClientIp(request) || 'unknown';
+
+    if (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN) {
+      console.error('Rate limit error: missing Upstash Redis env vars');
+      return Response.json({ error: 'Rate limit unavailable. Please try again later.' }, { status: 503 });
+    }
+
+    const redis = new Redis({
+      url: env.UPSTASH_REDIS_REST_URL,
+      token: env.UPSTASH_REDIS_REST_TOKEN,
+    });
 
     try {
       const [ipCount, emailCount] = await Promise.all([
-        incrementWithTtl(`rate:ip:${clientIp}`, ipRateLimit.windowSeconds),
-        incrementWithTtl(`rate:email:${email.toLowerCase()}`, emailRateLimit.windowSeconds),
+        incrementWithTtl(redis, `rate:ip:${clientIp}`, ipRateLimit.windowSeconds),
+        incrementWithTtl(redis, `rate:email:${email.toLowerCase()}`, emailRateLimit.windowSeconds),
       ]);
 
       if (ipCount > ipRateLimit.max) {
-        return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+        return Response.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
       }
 
       if (emailCount > emailRateLimit.max) {
-        return NextResponse.json({ error: 'Too many requests for this email. Please try again later.' }, { status: 429 });
+        return Response.json({ error: 'Too many requests for this email. Please try again later.' }, { status: 429 });
       }
     } catch (error) {
       console.error('Rate limit error:', error);
-      return NextResponse.json({ error: 'Rate limit unavailable. Please try again later.' }, { status: 503 });
+      return Response.json({ error: 'Rate limit unavailable. Please try again later.' }, { status: 503 });
     }
 
     if (!recaptchaToken) {
-      return NextResponse.json({ error: 'Missing reCAPTCHA token.' }, { status: 400 });
+      return Response.json({ error: 'Missing reCAPTCHA token.' }, { status: 400 });
     }
 
-    const recaptcha = await verifyRecaptcha(recaptchaToken, clientIp);
+    if (!env.RECAPTCHA_SECRET_KEY) {
+      console.error('Missing RECAPTCHA_SECRET_KEY');
+      return Response.json({ error: (new Error('Missing RECAPTCHA_SECRET_KEY')).message }, { status: 500 });
+    }
+
+    const recaptcha = await verifyRecaptcha(env.RECAPTCHA_SECRET_KEY, recaptchaToken, clientIp);
 
     if (!recaptcha.success) {
-      return NextResponse.json({ error: 'reCAPTCHA verification failed.' }, { status: 403 });
+      return Response.json({ error: 'reCAPTCHA verification failed.' }, { status: 403 });
     }
 
     if (recaptcha.action !== recaptchaAction) {
-      return NextResponse.json({ error: 'reCAPTCHA action mismatch.' }, { status: 403 });
+      return Response.json({ error: 'reCAPTCHA action mismatch.' }, { status: 403 });
     }
 
     if ((recaptcha.score ?? 0) < recaptchaMinScore) {
-      return NextResponse.json({ error: 'reCAPTCHA score too low.' }, { status: 403 });
+      return Response.json({ error: 'reCAPTCHA score too low.' }, { status: 403 });
     }
 
     // Deterministic Assignment (Statistically Balanced 50/50 Split)
@@ -173,7 +202,7 @@ export async function POST(req: Request) {
           Please focus on the navigation and overall experience, not on entering data.
         </div>
         <p>Please follow the instructions and study order assigned to you below:</p>
-        
+
         <div style="background: #fdfdfd; padding: 25px; border-radius: 12px; border: 1px solid #e5e7eb; margin: 25px 0;">
           <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #f3f4f6;">
             <p style="margin: 0 0 8px 0; font-size: 0.8rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Participant Name:</p>
@@ -182,7 +211,7 @@ export async function POST(req: Request) {
               <strong>Important:</strong> Use this exact name in all Maze tasks to match your results.
             </p>
           </div>
-          
+
           <div>
             <p style="margin: 0 0 8px 0; font-size: 0.8rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Your Assigned Study Order:</p>
             <p style="margin: 0; font-size: 1.25rem; color: #014421; font-weight: 800;">${studyOrder}</p>
@@ -192,7 +221,7 @@ export async function POST(req: Request) {
         <div style="margin-bottom: 30px;">
           <h3 style="font-size: 1.1rem; margin-bottom: 10px;">Step 1: First Task</h3>
           <p style="margin-bottom: 15px;">Please click the button below to begin your first task on the Maze platform:</p>
-          <a href="${studyOrder.includes('Study A first') ? mazeLinkA : mazeLinkB}" 
+          <a href="${studyOrder.includes('Study A first') ? mazeLinkA : mazeLinkB}"
              style="display: inline-block; padding: 14px 28px; background: #014421; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">
              Start Task 1
           </a>
@@ -201,7 +230,7 @@ export async function POST(req: Request) {
         <div style="margin-bottom: 30px;">
           <h3 style="font-size: 1.1rem; margin-bottom: 10px;">Step 2: Second Task</h3>
           <p style="margin-bottom: 15px;">After completing Task 1, proceed immediately to your second task:</p>
-          <a href="${studyOrder.includes('Study A first') ? mazeLinkB : mazeLinkA}" 
+          <a href="${studyOrder.includes('Study A first') ? mazeLinkB : mazeLinkA}"
              style="display: inline-block; padding: 14px 28px; background: #f3f4f6; color: #374151; text-decoration: none; border-radius: 6px; font-weight: 600; border: 1px solid #d1d5db;">
              Start Task 2
           </a>
@@ -218,7 +247,7 @@ export async function POST(req: Request) {
         </div>
 
         <hr style="margin: 40px 0; border: 0; border-top: 1px solid #eee;" />
-        
+
         <div style="font-size: 0.9rem; color: #666;">
           <p style="margin-bottom: 15px;"><strong>Research Team Contact Details:</strong></p>
           <table width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -252,7 +281,7 @@ export async function POST(req: Request) {
 
     // Send email to participant
     try {
-      await sendBrevoEmail({
+      await sendBrevoEmail(env, {
         to: email,
         bcc: [
           'smmariquit@up.edu.ph',
@@ -265,11 +294,11 @@ export async function POST(req: Request) {
       });
     } catch (error) {
       console.error('Brevo Error:', error);
-      return NextResponse.json({ error: 'Email delivery failed.' }, { status: 502 });
+      return Response.json({ error: 'Email delivery failed.' }, { status: 502 });
     }
 
-    return NextResponse.json({ success: true });
+    return Response.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
+    return Response.json({ error: (error as Error).message }, { status: 500 });
   }
-}
+};
